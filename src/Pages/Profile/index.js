@@ -46,7 +46,7 @@ function Profile() {
 
 
           <nav className="flex justify-between divide-x">
-            <button className="w-full" onClick={() => handleSetCollection('http://gateway.marvel.com/v1/public/characters/1009144/comics')}>
+            <button className="w-full" onClick={() => handleSetCollection(`https://gateway.marvel.com/v1/public/characters/${character.id}/comics`)}>
               <div className="text-lg font-sans antialiased font-medium text-slate-500">
                 Comics
                 <p><small>{character.comics?.available}</small></p>
