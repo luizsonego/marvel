@@ -16,7 +16,7 @@ function Profile() {
     }
 
     loadCharacter()
-  }, [])
+  }, [params.id])
 
   const handleSetCollection = (collection) => {
     console.log(collection)
