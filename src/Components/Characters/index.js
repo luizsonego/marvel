@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
-import { axios, queryClient } from '../../services';
+import { axios } from '../../services';
 import CardUser from '../CardUser';
 import CardUserFetching from '../CardUser/CardUserFetching';
 
@@ -17,7 +17,13 @@ function Characters() {
     isFetching,
     isLoading,
     data: charactersList
-  } = useQuery(['characters', page, limit], () => getCharacters(page, limit), { keepPreviousData: true })
+  } = useQuery(['characters', page, limit], () => getCharacters(page, limit),
+    {
+      keepPreviousData: true,
+      cacheTime: 1000 * 60 * 60 * 24,
+      refetchOnWindowFocus: false
+    }
+  )
 
   useEffect(() => {
     setLimit(limit + page)

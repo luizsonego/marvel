@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useQuery } from 'react-query';
-import { useHistory } from 'react-router-dom';
 import { Link, useParams } from "react-router-dom";
 import Collections from '../../Components/Collections';
 import ProfileFetching from '../../Components/Profile/ProfileFetching';
@@ -15,7 +14,12 @@ const getCharacter = async (id) => {
 
 function Profile() {
   const params = useParams()
-  const { isLoading, data: character } = useQuery(['character', params.id], () => getCharacter(params.id))
+  const { isLoading, data: character } = useQuery(['character', params.id], () => getCharacter(params.id),
+    {
+      keepPreviousData: true,
+      cacheTime: 1000 * 60 * 60 * 24,
+      refetchOnWindowFocus: false
+    })
   const [uriCollection, setUriCollection] = useState('');
 
   const handleSetCollection = (collection) => {

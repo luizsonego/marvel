@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import { axios } from '../../services';
@@ -10,8 +10,8 @@ const getListCollections = async (uri, page, limit) => {
 }
 
 function Collections({ uri }) {
+  const limit = 9
   const [page, setPage] = useState(0)
-  const [limit, setLimit] = useState(9)
   const { isLoading, data: collection } = useQuery(['collection', uri, page, limit], () => getListCollections(uri, page, limit))
 
   if (isLoading) return (<CollectionsFetching />)
