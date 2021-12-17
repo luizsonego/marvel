@@ -1,41 +1,56 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from "react-router-dom";
+import { useQuery } from 'react-query';
+import { useHistory } from 'react-router-dom';
+import { Link, useParams } from "react-router-dom";
 import Collections from '../../Components/Collections';
-import api from '../../services/api';
+import ProfileFetching from '../../Components/Profile/ProfileFetching';
+import { formatDateDMY } from '../../helpers/formatTime';
+import { axios, queryClient } from '../../services';
+
+
+const getCharacter = async (id) => {
+  const { data } = await axios.get(`characters/${id}`)
+  return data.data.results
+}
 
 function Profile() {
-  const params = useParams();
-  const [character, setCharacter] = useState([]);
-  const [uriCollection, setUriCollection] = useState();
-
-  useEffect(() => {
-    async function loadCharacter() {
-      const response = await api.get(`characters/${params.id}`)
-      const [char] = response.data.data.results
-      setCharacter(char)
-    }
-
-    loadCharacter()
-  }, [params.id])
+  const params = useParams()
+  const { isLoading, data: character } = useQuery(['character', params.id], () => getCharacter(params.id))
+  const [uriCollection, setUriCollection] = useState('');
 
   const handleSetCollection = (collection) => {
-    console.log(collection)
+    queryClient.invalidateQueries('collection')
     setUriCollection(collection)
   }
+
+
+
+  if (isLoading) return (<ProfileFetching />)
+
   return (
-    <div className="container mx-auto md:my-5 md:p-5">
+    <div className="container">
+
+      <div className="fixed h-14 w-14 left-4 top-3 md:top-7">
+        <Link to="/" >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 dark:text-gray-200 " fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M15 19l-7-7 7-7" />
+          </svg>
+        </Link>
+      </div>
+
+
       <div className="md:flex no-wrap md:-mx-2 ">
 
         {/* LEFT */}
         <div className="w-full md:w-3/12 md:mx-2">
           <div className="image overflow-hidden">
-            <img className="h-auto w-full mx-auto" src={`${character.thumbnail?.path}.${character.thumbnail?.extension}`} alt="" />
+            <img className="h-auto w-full mx-auto" src={`${character[0].thumbnail?.path}.${character[0].thumbnail?.extension}`} alt="" />
           </div>
 
           <div className="mx-5 md:mx-1 mb-8">
-            <h1 className="text-3xl md:text-2xl py-8 md:py-5 text-center">{character.name}</h1>
-            <h3 className="text-gray-600 font-lg text-semibold leading-6 pb-5 md:py-5 text-center">Atualizado em: {character.modified}</h3>
-            <p className="text-sm text-gray-500 hover:text-gray-600 leading-6">{character.description}</p>
+            <h1 className="text-3xl md:text-2xl py-8 md:py-5 text-center dark:text-gray-200">{character[0].name}</h1>
+            <h3 className="text-gray-600 font-lg text-semibold leading-6 pb-5 md:py-5 text-center">Atualizado em: {formatDateDMY(character[0]?.modified)}</h3>
+            <p className="text-sm text-gray-500 hover:text-gray-600 leading-6">{character[0].description}</p>
           </div>
 
         </div>
@@ -46,35 +61,37 @@ function Profile() {
 
 
           <nav className="flex justify-between divide-x">
-            <button className="w-full" onClick={() => handleSetCollection(`https://gateway.marvel.com/v1/public/characters/${character.id}/comics`)}>
+            <button className="w-full" onClick={() => handleSetCollection(`${character[0].id}/comics`)}>
               <div className="text-lg font-sans antialiased font-medium text-slate-500">
                 Comics
-                <p><small>{character.comics?.available}</small></p>
+                <p><small>{character[0].comics?.available}</small></p>
               </div>
             </button>
 
-            <button className="w-full " >
+            <button className="w-full " onClick={() => handleSetCollection(`${character[0].id}/series`)}>
               <div className="text-lg font-sans antialiased font-medium text-slate-500">
                 Series
-                <p><small>{character.series?.available}</small></p>
+                <p><small>{character[0].series?.available}</small></p>
               </div>
             </button>
-            <button className="w-full " >
+            <button className="w-full " onClick={() => handleSetCollection(`${character[0].id}/stories`)}>
               <div className="text-lg font-sans antialiased font-medium text-slate-500">
                 Stories
-                <p><small>{character.stories?.available}</small></p>
+                <p><small>{character[0].stories?.available}</small></p>
               </div>
             </button>
-            <button className="w-full " >
+            <button className="w-full " onClick={() => handleSetCollection(`${character[0].id}/events`)}>
               <div className="text-lg font-sans antialiased font-medium text-slate-500">
                 Events
-                <p><small>{character.events?.available}</small></p>
+                <p><small>{character[0].events?.available}</small></p>
               </div>
             </button>
           </nav>
 
           <div className="mx-auto my-5 p-5">
-            <Collections uri={uriCollection} />
+            {
+              uriCollection !== '' ? (<Collections uri={uriCollection} />) : (null)
+            }
           </div>
 
 
@@ -82,7 +99,7 @@ function Profile() {
 
       </div>
 
-    </div>
+    </div >
   )
 }
 

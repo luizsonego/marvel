@@ -1,5 +1,5 @@
 import { BrowserRouter, Route } from 'react-router-dom'
-import Index from './Pages'
+import Index from './Pages/Home'
 import Profile from './Pages/Profile'
 
 
